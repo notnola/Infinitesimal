@@ -8,23 +8,24 @@
 
 local player = ...
 local NoteData = {}
-
+local enabled = LoadModule("Config.Load.lua")("MeasureCounter",CheckIfUserOrMachineProfile(string.sub(player,-1)-1).."/OutFoxPrefs.ini")
+local HideRestCounts = LoadModule("Config.Load.lua")("MeasureCounter",CheckIfUserOrMachineProfile(string.sub(player,-1)-1).."/OutFoxPrefs.ini") == "StreamOnly"
+local TD
 local streams, prev_measure
-local current_count, stream_index, current_stream_length
-
-local MeasureCounter = LoadModule("Config.Load.lua")("MeasureCounter",CheckIfUserOrMachineProfile(string.sub(player,-1)-1).."/Infinitesimal.ini")
+local current_count, stream_index, current_stream_length = 0
 
 local InitializeMeasureCounter = function()
 
 	NoteData = {}
 
-	local notes_per_measure = 16
+	local notes_per_measure = tonumber(LoadModule("Config.Load.lua")("MeasureCounterDivisions",CheckIfUserOrMachineProfile(string.sub(player,-1)-1).."/OutFoxPrefs.ini"))
 	local threshold = 2
 	if GAMESTATE:GetCurrentSong() then
+		TD = GAMESTATE:GetPlayerState(player):GetSongPosition()
 		if GAMESTATE:Env()["ChartData"..player] then
 			local data = GAMESTATE:Env()["ChartData"..player]
 			if data[3] then
-				local streams = LoadModule("Chart.GetStreamMeasure.lua")(data[3], threshold, data[4])
+				local streams = LoadModule("Chart.GetStreamMeasure.lua")(data[3], 2, data[4])
 				if streams then
 					NoteData = streams
 				end
@@ -52,7 +53,7 @@ local GetTextForMeasure = function(self, current_measure, Measures, stream_index
 
 	local text = ""
 	if Measures[stream_index].isBreak then
-		if MeasureCounter == "All" then
+		if HideRestCounts == false then
 			-- NOTE: We let the lowest value be 0. This means that e.g.,
 			-- for an 8 measure break, we will display the numbers 7 -> 0
 			local measures_left = current_stream_length - current_count
@@ -75,7 +76,7 @@ end
 local Update = function(self, delta)
 	if not NoteData then return end
 
-    local curr_measure = (math.floor(GAMESTATE:GetSongPosition():GetSongBeatVisible()))/4
+    local curr_measure = (math.floor(TD:GetSongBeatVisible()))/4
 
 	-- if a new measure has occurred
 	if curr_measure > prev_measure then
@@ -96,21 +97,23 @@ local Update = function(self, delta)
 	return self
 end
 
-return Def.BitmapText{
-	Font='Montserrat normal 20px',
-	OnCommand=function(self)
-		if SCREENMAN:GetTopScreen() and SCREENMAN:GetTopScreen():GetChild("PlayerP"..string.sub(player,-1)) then
-			local pos = SCREENMAN:GetTopScreen():GetChild("PlayerP"..string.sub(player,-1)):GetX()
-			self:halign(0):shadowlength(1):xy(pos+48, _screen.cy+2):zoom(0.5)
+if enabled then
+	return Def.BitmapText{
+		Font='Montserrat semibold 20px',
+		OnCommand=function(self)
+			if not enabled then return end
+			if SCREENMAN:GetTopScreen() and SCREENMAN:GetTopScreen():GetChild("PlayerP"..string.sub(player,-1)) then
+				local pos = SCREENMAN:GetTopScreen():GetChild("PlayerP"..string.sub(player,-1)):GetX()
+				self:halign(1):shadowlength(1):xy(pos+(96*2)-(8), SCREEN_CENTER_Y)
+				InitializeMeasureCounter()
+			end
+		end,
+		BeatCrossedMessageCommand = function(self)
+			Update(self,0)
+		end,
+		CurrentSongChangedMessageCommand = function(self)
 			InitializeMeasureCounter()
-			self:queuecommand("Update")
 		end
-	end,
-	UpdateCommand = function(self)
-		Update(self,0)
-		self:sleep(0.02):queuecommand('Update')
-	end,
-	CurrentSongChangedMessageCommand = function(self)
-		InitializeMeasureCounter()
-	end
-}
+	}
+end
+return {}

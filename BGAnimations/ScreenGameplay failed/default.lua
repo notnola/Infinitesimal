@@ -1,7 +1,7 @@
 local t = Def.ActorFrame{
 
 	Def.Sprite {
-        Texture=THEME:GetPathG("", "GenericGradientBg"),
+        Texture=THEME:GetPathG("", "Gradient background"),
         InitCommand=function(self)
             self:zoomto(SCREEN_WIDTH, SCREEN_HEIGHT):Center()
         end
@@ -82,34 +82,30 @@ local t = Def.ActorFrame{
     Def.Sprite {
         Texture="Hey",
         InitCommand=function(self)
-            self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y-100)
+            self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y-150)
             :diffusealpha(0)
-            :sleep(0.5)
             :shadowlength(3)
             :shadowcolor(0,0,0,0.25)
-            :diffusealpha(0)
-            :sleep(0.25)
             :zoom(0.7)
+            :sleep(0.5 + 0.25)
             :accelerate(0.25)
             :diffusealpha(1)
-            :zoom(0.25)
+            :zoom(0.4)
         end
     },
 
     Def.Sprite {
         Texture="GetUpAndDanceMan",
         InitCommand=function(self)
-            self:xy(SCREEN_CENTER_X, SCREEN_CENTER_Y+50)
+            self:xy(SCREEN_CENTER_X - 10, SCREEN_CENTER_Y+75)
             :diffusealpha(0)
-            :sleep(0.5)
             :shadowlength(3)
             :shadowcolor(0,0,0,0.25)
-            :diffusealpha(0)
-            :sleep(0.85)
-            :zoom(2)
+			:zoom(2)
+            :sleep(0.5 + 0.85)
             :accelerate(0.25)
             :diffusealpha(1)
-            :zoom(0.55)
+            :zoom(0.8)
         end
     },
 
@@ -118,7 +114,7 @@ local t = Def.ActorFrame{
 		OnCommand=function(self)
 			self:queuecommand("Play")
 		end,
-		PlayCommand=function(self)self:play()end
+		PlayCommand=function(self) self:play() end
   	},
 
   	Def.Sound {
@@ -127,7 +123,7 @@ local t = Def.ActorFrame{
 			self:sleep(0.9)
 			:queuecommand("Play")
 		end,
-		PlayCommand=function(self)self:play()end
+		PlayCommand=function(self) self:play() end
   	},
 
   	Def.Sound {
@@ -136,7 +132,7 @@ local t = Def.ActorFrame{
 			self:sleep(1.8)
 			:queuecommand("Play")
 		end,
-		PlayCommand=function(self)self:play()end
+		PlayCommand=function(self) self:play() end
   	},
   	
   	Def.Quad {
@@ -165,4 +161,4 @@ local t = Def.ActorFrame{
     }
 }
 
-return t;
+return t
