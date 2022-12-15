@@ -2,11 +2,15 @@ local TimingMode = LoadModule("Config.Load.lua")("SmartTimings","Save/OutFoxPref
 
 local t = Def.ActorFrame {}
 
+
+--[[ Commenting this block out as it cause quirks with some packs displayinjg starfiled instead of the song's title card during gameplay
 if LoadModule("Config.Load.lua")("StarField","Save/OutFoxPrefs.ini") or not GAMESTATE:GetCurrentSong():HasBackground() then
     t[#t+1] = Def.ActorFrame {
         LoadActor("StarField")
     }
 end
+--]]
+
 
 t[#t+1] = Def.ActorFrame {
     LoadActor("ScreenFilter")
